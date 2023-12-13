@@ -13,8 +13,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
 Route::get('prepare-to-login', function () {
    $state = Str::random(40);
+
+    session([
+         'state' => $state
+    ]);
+
     $query = http_build_query([
          'client_id' => env('CLIENT_ID'),
          'redirect_uri' => env('REDIRECT_URL'),
@@ -23,13 +29,20 @@ Route::get('prepare-to-login', function () {
          'state' => $state,
     ]);
     return redirect('http://localhost:8000/oauth/authorize?'.$query);
-})->name('prepare-to-login');
+})->name('prepare.login');
 
-Route::get('callback', function (Request $request) {
-//    $http = new GuzzleHttp\Client;
-//    $response = $http->post('http://localhost:8000/oauth/token', [
-//         'form_params' => [
-//             'grant_type' => 'authorization_code',
-//             'client_id' => 3,')
-    dd($request->all());
+Route::get('callback', function () {
+    $request = request(); // Use a função helper 'request()' para obter a instância da requisição atual
+//    dd($request->all());
+
+    // Verificacao do state
+    $response = Http::post(env('API_URL').'/oauth/token', [
+        'grant_type' => 'authorization_code',
+        'client_id' => env('CLIENT_ID'),
+        'client_secret' => env('CLIENT_SECRET'),
+        'redirect_uri' => env('REDIRECT_URL'),
+        'code' => $request->code,
+    ]);
+    dd($response->json());
 });
+
