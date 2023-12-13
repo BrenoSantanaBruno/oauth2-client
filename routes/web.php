@@ -46,3 +46,12 @@ Route::get('callback', function () {
     dd($response->json());
 });
 
+Route::get('grant-client', function () {
+    $response = Http::post(env('API_URL').'/oauth/token', [
+        'grant_type' => 'client_credentials',
+        'client_id' => 4,
+        'client_secret' => 'DaxIwrwLoPStjcK3gdQ6uFFk3dHXOG6yBueONQzH',
+        'scope' => '',
+    ]);
+    dd($response->json());
+});
